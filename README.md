@@ -2,7 +2,9 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 ### Usage
-中文读者请直接阅读与此代码库紧密相关的博客，链接：https://www.jianshu.com/p/f9ab6427ee97
+中文读者请直接阅读与此代码库紧密相关的博客
+链接：https://www.jianshu.com/p/f9ab6427ee97
+
 Use --help to see usage of yolo_video.py:
 ```
 usage: yolo_video.py [-h] [--model MODEL] [--anchors ANCHORS]
