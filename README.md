@@ -1,28 +1,6 @@
-# keras-yolo3
-
+# keras_YOLOv3
+中文读者请直接阅读与此代码库紧密相关的博客，链接：https://www.jianshu.com/p/f9ab6427ee97
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
-
-## Introduction
-
-A Keras implementation of YOLOv3 (Tensorflow backend) inspired by [allanzelener/YAD2K](https://github.com/allanzelener/YAD2K).
-
-
----
-
-## Quick Start
-
-1. Download YOLOv3 weights from [YOLO website](http://pjreddie.com/darknet/yolo/).
-2. Convert the Darknet YOLO model to a Keras model.
-3. Run YOLO detection.
-
-```
-wget https://pjreddie.com/media/files/yolov3.weights
-python convert.py yolov3.cfg yolov3.weights model_data/yolo.h5
-python yolo_video.py [OPTIONS...] --image, for image detection mode, OR
-python yolo_video.py [video_path] [output_path (optional)]
-```
-
-For Tiny YOLOv3, just do in a similar way, just specify model path and anchor path with `--model model_file` and `--anchors anchor_file`.
 
 ### Usage
 Use --help to see usage of yolo_video.py:
@@ -82,9 +60,9 @@ If you want to use original pretrained weights for YOLOv3:
 ## Some issues to know
 
 1. The test environment is
-    - Python 3.5.2
-    - Keras 2.1.5
-    - tensorflow 1.6.0
+    - Python 3.6
+    - Keras 2.2
+    - tensorflow 1.10
 
 2. Default anchors are used. If you use your own anchors, probably some changes are needed.
 
@@ -95,5 +73,3 @@ If you want to use original pretrained weights for YOLOv3:
 5. Always load pretrained weights and freeze layers in the first stage of training. Or try Darknet training. It's OK if there is a mismatch warning.
 
 6. The training strategy is for reference only. Adjust it according to your dataset and your goal. And add further strategy if needed.
-
-7. For speeding up the training process with frozen layers train_bottleneck.py can be used. It will compute the bottleneck features of the frozen model first and then only trains the last layers. This makes training on CPU possible in a reasonable time. See [this](https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html) for more information on bottleneck features.
