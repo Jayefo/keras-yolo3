@@ -5,7 +5,6 @@ from keras.layers import Input, Lambda
 from keras.models import Model
 from yolo3.model import preprocess_true_boxes, yolo_body, yolo_loss
 from yolo3.utils import get_random_data
-from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 
 def getClassNameList(classFilePath):
     with open(classFilePath) as file:
@@ -83,19 +82,13 @@ def train(model,
     num_val = int(len(lines)*val_split)
     num_train = len(lines) - num_val
     print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
-    logging = TensorBoard(log_dir=log_dir)
-    checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
-        monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
-    early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
     model.fit_generator(
         data_generator(lines[:num_train], batch_size, input_shape, anchor_list, num_classes),
         steps_per_epoch=max(1, num_train // batch_size),
         validation_data=data_generator(lines[num_train:], batch_size, input_shape, anchor_list, num_classes),
         validation_steps=max(1, num_val // batch_size),
         epochs=200,
-        initial_epoch=0,
-        callbacks=[logging, checkpoint, reduce_lr, early_stopping])
+        initial_epoch=0)
     # when model training finished, save model
     if not os.path.isdir(logDirPath):
         os.makedirs(logDirPath)
