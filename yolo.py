@@ -55,7 +55,8 @@ class YOLO(object):
         hsvTuple_list = [(x / len(self.className_list), 1., 1.)
                       for x in range(len(self.className_list))]
         color_list = [colorsys.hsv_to_rgb(*k) for k in hsvTuple_list]
-        self.color_list = (np.array(color_list) * 255).astype('int').tolist()
+        color_ndarray = (np.array(color_list) * 255).astype('int')
+        self.color_list = [(k[0], k[1], k[2]) for k in color_ndarray]
         # 目标检测的输出：方框box,得分score，类别class
         self.input_image_size = K.placeholder(shape=(2, ))
         boxes, scores, classes = yolo_eval(self.yolo_model.output,
@@ -100,7 +101,7 @@ class YOLO(object):
             left = max(0, np.floor(left + 0.5).astype('int32'))
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
             right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-            # 如果方框在图片中的位置过于靠上，调用文字区域
+            # 如果方框在图片中的位置过于靠上，调整文字区域
             if top - label_size[1] >= 0:
                 text_origin = np.array([left, top - label_size[1]])
             else:
@@ -111,7 +112,7 @@ class YOLO(object):
                     outline=self.color_list[c])
             # 绘制方框中的文字
             draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)],
-                fill=self.colors[c])
+                fill=self.color_list[c])
             draw.text(text_origin, label, fill=(0, 0, 0), font=font)
             del draw
         # 打印检测图片使用的时间
