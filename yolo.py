@@ -20,6 +20,12 @@ class YOLO(object):
         "model_image_size" : (416, 416) #must be a multiple of 32
     }
 
+    @classmethod
+    def get_defaults(cls, n):
+        if n in cls.defaults:
+            return cls.defaults[n]
+        else:
+            return 'Unrecognized attribute name "%s"' %n
 
     def __init__(self, **kwargs):
         self.__dict__.update(self.defaults) # set up default values
@@ -119,7 +125,9 @@ class YOLO(object):
         usedTime = time.time() - startTime
         print('检测这张图片用时%.2f秒' %(usedTime))
         return image
-
+    
+    def close_session(self):
+        self.sess.close()
 
 def detect_video(yolo, video_path, output_path=""):
     import cv2
@@ -133,17 +141,25 @@ def detect_video(yolo, video_path, output_path=""):
     isOutput = True if output_path != "" else False
     if isOutput:
         print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
+        print(video_FourCC, video_fps, video_size)
         out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
     accum_time = 0
     curr_fps = 0
     fps = "FPS: ??"
-    prev_time = timer()
+    prev_time = time.time()
+    cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('result', video_size[0], video_size[1])
     while True:
         return_value, frame = vid.read()
-        image = Image.fromarray(frame)
+        try:
+            #图片第1维是宽，第2维是高，第3维是RGB
+            #PIL库图片第三维是RGB，cv2库图片第三维正好相反，是BGR
+            image = Image.fromarray(frame[...,::-1])
+        except Exception as e:
+            break
         image = yolo.detect_image(image)
         result = np.asarray(image)
-        curr_time = timer()
+        curr_time = time.time()
         exec_time = curr_time - prev_time
         prev_time = curr_time
         accum_time = accum_time + exec_time
@@ -154,11 +170,12 @@ def detect_video(yolo, video_path, output_path=""):
             curr_fps = 0
         cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontScale=0.50, color=(255, 0, 0), thickness=2)
-        cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-        cv2.imshow("result", result)
+        cv2.imshow("result", result[...,::-1])
         if isOutput:
-            out.write(result)
+            out.write(result[...,::-1])
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        sleepTime = 0.5
+        time.sleep(sleepTime)
     yolo.close_session()
 
